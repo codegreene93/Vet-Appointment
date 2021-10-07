@@ -1,11 +1,25 @@
+import {useEffect, useState, useCallback} from 'react';
 import Search from './components/Search';
 import {BiCalendar} from 'react-icons/bi';
 import AddAppointment from './components/AddAppointment';
-import AppointmentList from './data.json';
 import AppointmentInfo from './components/AppointmentInfo';
 
 
 function App() {
+  let [appointmentList, setAppointmentList] = useState([]);
+
+  const fetchData = useCallback(() => {
+    fetch('./data.json')
+      .then(response => response.json())
+      .then(data => {
+        setAppointmentList(data)
+      });
+  },[])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData]);
+
   return (
     <div className="App container mx-auto mt-3 font-thin">
       <h1 className="text-5xl mb-3"> <BiCalendar className="inline-block text-red-400"/>Your Appointments</h1>
@@ -13,8 +27,11 @@ function App() {
       <Search />
       
       <ul className="divide-y divide-grey-200">
-        {AppointmentList.map(appointment => (
-           <AppointmentInfo key={appointment.id} appointment={appointment} />
+        {appointmentList.map(appointment => (
+           <AppointmentInfo key={appointment.id} appointment={appointment} onDeleteAppointment={
+             appointmentId => 
+             setAppointmentList(appointmentList.filter(appointment => appointment.id != appointmentId))
+           }/>
         ))
         }
       </ul>
